@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ProdCraft — تطبيق إدارة المنتجات</title>
+
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#98a0b3;
+      --accent1:#6ee7b7; /* mint */
+      --accent2:#60a5fa; /* blue */
+      --danger:#ff6b6b;
+      --glass: rgba(255,255,255,0.04);
+      --radius:12px;
+      --shadow: 0 8px 24px rgba(2,6,23,0.6);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      background:
+        radial-gradient(1000px 600px at 10% 10%, rgba(96,165,250,0.07), transparent 10%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), transparent 40%),
+        var(--bg);
+      color:#e6eef8;
+      padding:28px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      min-height:100vh;
+    }
+
+    .container{
+      max-width:980px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:22px;
+    }
+
+    header.app-header{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:18px;
+      border-radius:var(--radius);
+      box-shadow: var(--shadow);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    .logo {
+      width:56px;
+      height:56px;
+      border-radius:12px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      color: #07203b;
+      font-size:18px;
+      letter-spacing:0.6px;
+    }
+
+    .title {
+      display:flex;
+      flex-direction:column;
+    }
+
+    .title h1{
+      margin:0;
+      font-size:20px;
+      line-height:1;
+    }
+    .title p{
+      margin:2px 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:18px;
+      border-radius:var(--radius);
+      border:1px solid rgba(255,255,255,0.03);
+      box-shadow: var(--shadow);
+    }
+
+    form.add-form{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .input {
+      flex:1;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      background:var(--glass);
+      padding:8px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    .input svg{opacity:0.7}
+    .input input{
+      background:transparent;
+      border:0;
+      outline:none;
+      color:inherit;
+      font-size:15px;
+      padding:10px 6px;
+      width:100%;
+    }
+
+    .btn {
+      background:linear-gradient(90deg,var(--accent2),var(--accent1));
+      color:#042034;
+      border:0;
+      padding:10px 14px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.45);
+    }
+    .btn.ghost{
+      background:transparent;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,0.03);
+      box-shadow:none;
+    }
+
+    /* table / list */
+    .list {
+      margin-top:14px;
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    .list thead th{
+      text-align:right;
+      font-size:13px;
+      color:var(--muted);
+      padding:12px 12px;
+      border-bottom:1px dashed rgba(255,255,255,0.03);
+      direction:rtl;
+    }
+
+    .list tbody tr{
+      transition:background .18s ease;
+    }
+
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      padding:12px;
+      border-radius:10px;
+      margin-bottom:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+      border:1px solid rgba(255,255,255,0.02);
+    }
+
+    .product-info{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      min-width:0;
+    }
+
+    .badge{
+      min-width:36px;
+      height:36px;
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      background: rgba(255,255,255,0.03);
+      color:var(--accent1);
+    }
+
+    .product-name{
+      font-size:15px;
+      margin:0;
+      color:#eaf6ff;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:480px;
+    }
+
+    .row .controls{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    .icon-btn{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.03);
+      color:var(--muted);
+      padding:8px 10px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    .icon-btn.edit{
+      color:var(--accent2);
+      border-color: rgba(96,165,250,0.12);
+      background: rgba(96,165,250,0.03);
+    }
+    .icon-btn.delete{
+      color:var(--danger);
+      border-color: rgba(255,107,107,0.12);
+      background: rgba(255,107,107,0.03);
+    }
+
+    .empty {
+      text-align:center;
+      padding:28px 12px;
+      color:var(--muted);
+    }
+
+    footer.note{
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+      margin-top:6px;
+    }
+
+    @media (max-width:620px){
+      .product-name{max-width:200px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header class="app-header card" role="banner">
+      <div class="logo">PC</div>
+      <div class="title">
+        <h1>ProdCraft</h1>
+        <p>تطبيق إدارة المنتجات — سريع وبسيط</p>
+      </div>
+    </header>
+
+    <section class="card" aria-labelledby="add-title">
+      <h2 id="add-title" style="margin:0 0 10px 0;font-size:16px;color:var(--muted);">أضف منتج جديد</h2>
+
+      <form id="addForm" class="add-form" autocomplete="off">
+        <div class="input" aria-hidden="false">
+          <!-- simple icon -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:.9" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <input id="productInput" type="text" placeholder="اكتب اسم المنتج ثم اضغط إضافة" aria-label="اسم المنتج" required />
+        </div>
+
+        <button type="submit" class="btn">إضافة</button>
+        <button type="button" id="clearBtn" class="btn ghost" title="مسح الكل">مسح الكل</button>
+      </form>
+
+      <div id="listContainer" style="margin-top:14px;">
+        <!-- dynamic list -->
+        <div id="emptyMsg" class="empty">لا يوجد منتجات بعد — أضف أول منتج الآن ✨</div>
+        <div id="items"></div>
+      </div>
+
+      <footer class="note">التغييرات تُخزن محليًا في متصفحك (localStorage)</footer>
+    </section>
+
+  </div>
+
+  <script>
+    (function(){
+      const STORAGE_KEY = 'prodcraft_products_v1';
+      const addForm = document.getElementById('addForm');
+      const productInput = document.getElementById('productInput');
+      const itemsEl = document.getElementById('items');
+      const emptyMsg = document.getElementById('emptyMsg');
+      const clearBtn = document.getElementById('clearBtn');
+
+      // helpers
+      function save(products){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+      }
+      function load(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : [];
+        }catch(e){
+          console.error('Parsing storage failed', e);
+          return [];
+        }
+      }
+      function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+      // render
+      function renderList(){
+        const products = load();
+        itemsEl.innerHTML = '';
+        if(products.length === 0){
+          emptyMsg.style.display = 'block';
+          return;
+        } else {
+          emptyMsg.style.display = 'none';
+        }
+
+        // create rows
+        products.forEach(p => {
+          const row = document.createElement('div');
+          row.className = 'row';
+          row.dataset.id = p.id;
+
+          const info = document.createElement('div');
+          info.className = 'product-info';
+
+          const badge = document.createElement('div');
+          badge.className = 'badge';
+          badge.textContent = (p.name || '').slice(0,2).toUpperCase();
+
+          const name = document.createElement('p');
+          name.className = 'product-name';
+          name.textContent = p.name;
+
+          info.appendChild(badge);
+          info.appendChild(name);
+
+          const controls = document.createElement('div');
+          controls.className = 'controls';
+
+          const editBtn = document.createElement('button');
+          editBtn.className = 'icon-btn edit';
+          editBtn.type = 'button';
+          editBtn.title = 'تعديل';
+          editBtn.textContent = 'تعديل';
+          editBtn.addEventListener('click', () => onEdit(p.id));
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'icon-btn delete';
+          deleteBtn.type = 'button';
+          deleteBtn.title = 'حذف';
+          deleteBtn.textContent = 'حذف';
+          deleteBtn.addEventListener('click', () => onDelete(p.id));
+
+          controls.appendChild(editBtn);
+          controls.appendChild(deleteBtn);
+
+          row.appendChild(info);
+          row.appendChild(controls);
+
+          itemsEl.appendChild(row);
+        });
+      }
+
+      // add
+      addForm.addEventListener('submit', function(e){
+        e.preventDefault();
+        const raw = productInput.value.trim();
+        if(!raw) return;
+        const products = load();
+        const newItem = { id: uid(), name: raw, createdAt: new Date().toISOString() };
+        products.unshift(newItem); // add to top
+        save(products);
+        productInput.value = '';
+        renderList();
+        productInput.focus();
+      });
+
+      // edit
+      function onEdit(id){
+        const products = load();
+        const item = products.find(x => x.id === id);
+        if(!item) return;
+        const newName = prompt('عدّل اسم المنتج:', item.name);
+        if(newName === null) return; // canceled
+        const trimmed = newName.trim();
+        if(trimmed === ''){
+          alert('الاسم لا يمكن أن يكون فارغًا.');
+          return;
+        }
+        item.name = trimmed;
+        save(products);
+        renderList();
+      }
+
+      // delete
+      function onDelete(id){
+        if(!confirm('هل أنت متأكد أنك تريد حذف هذا المنتج؟')) return;
+        let products = load();
+        products = products.filter(x => x.id !== id);
+        save(products);
+        renderList();
+      }
+
+      // clear all
+      clearBtn.addEventListener('click', function(){
+        const products = load();
+        if(products.length === 0){
+          alert('لا توجد عناصر للحذف.');
+          return;
+        }
+        if(!confirm('هل تريد حذف كل المنتجات؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        renderList();
+      });
+
+      // init
+      renderList();
+
+      // accessibility: add keyboard shortcut (N) to focus input
+      document.addEventListener('keydown', (e) => {
+        if(e.key.toLowerCase() === 'n' && !e.metaKey && !e.ctrlKey && !e.altKey){
+          productInput.focus();
+          e.preventDefault();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
